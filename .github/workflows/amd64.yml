@@ -6,7 +6,12 @@ on:
         description: '请填写docker镜像名称 多个用英文逗号分开'
         required: true
         default: 'alpine:latest'  # 设置默认的 Docker 镜像列表
-
+      docker_username:
+        description: '请填写docker login username'
+        required: true
+      docker_password:
+        description: '请填写docker login password'
+        required: true
 jobs:
   pull_and_package:
     runs-on: ubuntu-latest
@@ -25,7 +30,7 @@ jobs:
         images="${{ github.event.inputs.docker_images }}"
         IFS=',' read -r -a image_array <<< "$images"
         for image in "${image_array[@]}"; do
-          docker pull "${image}" --platform "linux/amd64"
+          docker pull -u ${{ github.event.inputs.docker_username }} -p ${{ github.event.inputs.docker_password }} "${image}" --platform "linux/amd64"
           docker save "${image}" -o "${image//\//_}-amd64.tar"
         done
 
