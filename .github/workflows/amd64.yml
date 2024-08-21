@@ -29,10 +29,12 @@ jobs:
       run: |
         images="${{ github.event.inputs.docker_images }}"
         IFS=',' read -r -a image_array <<< "$images"
+        docker login -u ${{ github.event.inputs.docker_username }} -p ${{ github.event.inputs.docker_password }}
         for image in "${image_array[@]}"; do
-          docker pull -u ${{ github.event.inputs.docker_username }} -p ${{ github.event.inputs.docker_password }} "${image}" --platform "linux/amd64"
+          docker pull  "${image}" --platform "linux/amd64"
           docker save "${image}" -o "${image//\//_}-amd64.tar"
         done
+        docker logout
 
     - name: Compress the TAR files
       run: tar -czf x86-64-images.tar.gz *-amd64.tar
